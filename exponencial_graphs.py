@@ -1,9 +1,10 @@
 #! /usr/bin/python
+import math
 import matplotlib
 import matplotlib.pyplot as plt
 
 
-farribo = open("arribos", "r")
+farribo = open("npaq_en_fila", "r")
 
 f  = []
 fn = []
@@ -20,8 +21,8 @@ for x in f:
 	t = x
 
 
-promedio = sum( ff ) / len(ff)
-varianza = sum( [(x-promedio)**2 for x in ff] ) / len(ff)
+promedio = sum( f ) / len(f)
+varianza = sum( [(x-promedio)**2 for x in f] ) / len(f)
 
 print("Promedio : " + str(promedio))
 print("Varianza : " + str(varianza))

@@ -7,8 +7,7 @@ BDIR = bin
 ### Comipilador #################################
 CC     = gcc
 CFLAGS = -Wall -std=gnu99 -I$(IDIR)/
-
-LIBS = -lm 
+LIBS   = -lm 
 
 
 ### Instrucciones de compilacion ################
@@ -18,11 +17,11 @@ run:
 	@$(BDIR)/./simulador
 
 
-simulador: lcgrand.o simulador.o
-	@$(CC) -o $(BDIR)/simulador $(ODIR)/simulador.o $(ODIR)/lcgrand.o $(LIBS)
+simulador: lcgrand.o simulador.o fila.o
+	@$(CC) -o $(BDIR)/simulador $(ODIR)/simulador.o $(ODIR)/lcgrand.o $(ODIR)/fila.o $(LIBS)
 
 %.o:  $(SDIR)/%.c
-	@$(CC) $(CFLAGS) -c $< -o $(ODIR)/$@
+	$(CC) $(CFLAGS) -c $< -o $(ODIR)/$@
 
 # limpieza
 clean: clean_obj clean_bin
