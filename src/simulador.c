@@ -13,7 +13,7 @@
 #include "exponencial.h"
 #include "fila.h"
 
-#define N_EVENTOS 100000L			// -1 maxima espera
+#define N_EVENTOS 1000000L			// -1 maxima espera
 
 #define LAMBDA 	1
 #define MU 		1
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	}
 
 	scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(0), LAMBDA));
-	scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(51), MU));
+	scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(49), MU));
 
 	for(unsigned long i=0; hay_evento() && i < N_EVENTOS; i++){
 		consumir_evento();
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
 
 			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(51), MU));
 			scheduler_agregar_evento(M_NPAQUETES, 0);
-			scheduler_agregar_evento(M_TESPERA, 0);
+			//scheduler_agregar_evento(M_TESPERA, 0);
 			break;
 		}
 		case M_NPAQUETES:{
@@ -65,6 +65,11 @@ int main(int argc, char *argv[]){
 
 		//usleep(0);
 	}
+
+	FILE *fp = fopen("resultados_finales", "w");
+	fila_logear_paquetes_peridos(fp, &fila);
+	fila_logear_paquetes_consumidos(fp, &fila);
+	fclose(fp);
 
 	return 0;
 }
