@@ -28,17 +28,17 @@ void scheduler_agregar_evento(enum EVENTO e, double t){
 
 int consumir_evento(){
 	if(scheduler.lista.primero == NULL)
-		return 1;	// error : no se ha inicializado lista
+		return -1;	// error : no se ha inicializado lista
 
 	if(scheduler.lista.primero->sig == NULL)
-		return 2;	// error : no se ha insertado ningún nodo
+		return -2;	// error : no se ha insertado ningún nodo
 
 	scheduler.evento_actual        = scheduler.lista.primero->sig->evento;
 	scheduler.tiempo_espera_actual = scheduler.lista.primero->sig->tiempo;
 	scheduler.tiempo_simulacion   += scheduler.tiempo_espera_actual;
 
 	struct nodo_evento *actual_cabeza = scheduler.lista.primero->sig;
-	scheduler.lista.primero->sig           = actual_cabeza->sig;
+	scheduler.lista.primero->sig      = actual_cabeza->sig;
 
 	lista_reiniciar(&scheduler.lista);
 	while(lista_siguiente(&scheduler.lista)){
@@ -60,4 +60,19 @@ enum EVENTO ultimo_evento(){
 
 double tiempo_simulacion(){
 	return scheduler.tiempo_simulacion;
+}
+
+void scheduler_logear_tiempos_espera(FILE *fp){
+	if(fp == NULL){
+		lista_reiniciar(&scheduler.lista);
+		while(lista_siguiente(&scheduler.lista)){
+			fprintf(stdout, "%.4f\n", scheduler.lista.actual->tiempo);
+		}
+	}		
+	else{
+		lista_reiniciar(&scheduler.lista);
+		while(lista_siguiente(&scheduler.lista)){
+			fprintf(fp, "%.4f\n", scheduler.lista.actual->tiempo);
+		}
+	}
 }

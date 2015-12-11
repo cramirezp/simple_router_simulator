@@ -23,9 +23,11 @@ for x in f:
 
 promedio = sum( f ) / len(f)
 varianza = sum( [(x-promedio)**2 for x in f] ) / len(f)
+prob_cero = len([x for x in f if x==0])/len(f)
 
 print("Promedio : " + str(promedio))
 print("Varianza : " + str(varianza))
+print("Probabilidad de cero : " + str(prob_cero))
 
 #plt.stem(list(range(0,len(f))), ff)
 #plt.show()

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-enum EVENTO {ARRIBO, CONSUMO, NINGUNO};
+enum EVENTO {ARRIBO, CONSUMO, M_NPAQUETES, M_TESPERA, NINGUNO};
 
 struct nodo_evento{
 	enum EVENTO evento;

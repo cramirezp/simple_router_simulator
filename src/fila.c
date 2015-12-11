@@ -16,11 +16,11 @@ int init_fila(struct fila_t *f){
 
 int fila_recibir_paquete(struct fila_t *f){
 	if(f == NULL)
-		return 1;
+		return -1;
 
 	if(f->estado == BLOQUEADA){
 		f->paquetes_perdidos++;
-		return 2;
+		return 0;
 	}
 	else{
 		f->paquetes_en_fila++;
@@ -30,15 +30,15 @@ int fila_recibir_paquete(struct fila_t *f){
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 int fila_consumir_paquete(struct fila_t *f){
 	if(f == NULL)
-		return 1;
+		return -1;
 
 	if(f->estado == VACIA){
-		return 2;
+		return 0;
 	}
 
 	f->paquetes_en_fila--;
@@ -46,9 +46,12 @@ int fila_consumir_paquete(struct fila_t *f){
 	if(f->paquetes_en_fila == 0)
 		f->estado = VACIA;
 
-	return 0;
+	return 1;
 }
 
-void fila_imprimir(struct fila_t *f){
-	printf("%d\n", f->paquetes_en_fila);
+void fila_logear_npaquetes(FILE *fp, struct fila_t *f){
+	if(fp == NULL)
+		fprintf(stdout, "%d\n", f->paquetes_en_fila);
+	else
+		fprintf(fp, "%d\n", f->paquetes_en_fila);
 }

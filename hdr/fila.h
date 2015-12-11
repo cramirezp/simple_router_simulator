@@ -18,4 +18,4 @@ struct fila_t{
 int init_fila(struct fila_t *f);
 int fila_recibir_paquete(struct fila_t *f);
 int fila_consumir_paquete(struct fila_t *f);
-void fila_imprimir(struct fila_t *f);
+void fila_logear_npaquetes(FILE *fp, struct fila_t *f);

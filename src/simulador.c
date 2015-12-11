@@ -13,7 +13,9 @@
 #include "exponencial.h"
 #include "fila.h"
 
-#define LAMBDA 	0.1
+#define N_EVENTOS 100000L			// -1 maxima espera
+
+#define LAMBDA 	1
 #define MU 		1
 
 int main(int argc, char *argv[]){
@@ -31,31 +33,37 @@ int main(int argc, char *argv[]){
 	scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(0), LAMBDA));
 	scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(51), MU));
 
-	for(int i=0; hay_evento() && i < 10000; i++){
+	for(unsigned long i=0; hay_evento() && i < N_EVENTOS; i++){
 		consumir_evento();
 
 		switch(ultimo_evento()){
 		case ARRIBO:{
 			fila_recibir_paquete(&fila);
-			fila_imprimir(&fila);
 
-			//printf("%.2f\n", tiempo_simulacion());
 			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(1), LAMBDA));
+			scheduler_agregar_evento(M_NPAQUETES, 0);
 			break;
 		}
 		case CONSUMO:{
 			fila_consumir_paquete(&fila);
-			fila_imprimir(&fila);
 
-			//printf("%.2f\n", tiempo_simulacion());
 			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(51), MU));
+			scheduler_agregar_evento(M_NPAQUETES, 0);
+			scheduler_agregar_evento(M_TESPERA, 0);
+			break;
+		}
+		case M_NPAQUETES:{
+			fila_logear_npaquetes(stdout, &fila);
+			break;
+		}
+		case M_TESPERA:{
 			break;
 		}
 		default:
 			break;
 		}
 
-		usleep(0);
+		//usleep(0);
 	}
 
 	return 0;
