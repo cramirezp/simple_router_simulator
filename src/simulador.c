@@ -30,14 +30,17 @@ int main(int argc, char *argv[]){
 		return 2;
 	}
 
-	scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(0), LAMBDA));
-	scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(49), MU));
+	double t_arribo  = iacum_exp(lcgrand(0), LAMBDA);
+	double t_consumo = iacum_exp(lcgrand(49), MU) + t_arribo;
+	scheduler_agregar_evento(ARRIBO, t_arribo);
+	scheduler_agregar_evento(CONSUMO, t_consumo);
 
 	for(unsigned long i=0; hay_evento() && i < N_EVENTOS; i++){
 		consumir_evento();
 
 		switch(ultimo_evento()){
 		case ARRIBO:{
+			// si esta vacio, realizar un arribo y consumo mas
 			fila_recibir_paquete(&fila);
 
 			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(1), LAMBDA));
@@ -45,6 +48,7 @@ int main(int argc, char *argv[]){
 			break;
 		}
 		case CONSUMO:{
+			// si esta vacio, no realizar consumo (se realiza con la creacion)
 			fila_consumir_paquete(&fila);
 
 			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(51), MU));

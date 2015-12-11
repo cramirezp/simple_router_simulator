@@ -47,6 +47,10 @@ int fila_consumir_paquete(struct fila_t *f){
 		f->estado = DISPONIBLE;
 	if(f->paquetes_en_fila == 0)
 		f->estado = VACIA;
+	else if(f->paquetes_en_fila < 0){
+		f->paquetes_en_fila = 0;
+		f->estado = VACIA;
+	}
 
 	return 1;
 }
