@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-#define K 10		// Tamaño fila
+#define K 11		// Tamaño de sistema
 
-enum ESTADO_FILA{DISPONIBLE, VACIA, BLOQUEADA};
+enum ESTADO_FILA{DISPONIBLE, VACIA, LLENA};
 
 struct fila_t{
 	// Estado

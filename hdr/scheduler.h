@@ -5,8 +5,8 @@ struct scheduler_t{
 	struct lista_evento lista;
 	double tiempo_simulacion;
 
-	enum EVENTO evento_actual;		// Tipo de evento
-	double tiempo_espera_actual;	//Delta hasta siguiente evento
+	enum EVENTO evento_actual;			// Tipo de evento
+	double tiempo_espera_actual;		// Delta hasta siguiente evento
 };
 
 static struct scheduler_t scheduler;	// Variable global de cabecera
