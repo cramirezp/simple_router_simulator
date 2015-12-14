@@ -15,13 +15,19 @@
 
 #define N_EVENTOS 10000000L			// -1 maxima espera.  Tanto eventos de FILA como de MEDICION
 
-#define LAMBDA 	0.1
+#define LAMBDA 	0.99
 #define MU 		1
 
 #define SEED0	1
 #define SEED1	53
 
 int main(int argc, char *argv[]){
+	float lambda=LAMBDA, mu=MU;
+	if(argc > 1)
+		lambda = atof(argv[1]);
+	if(argc > 2)
+		mu     = atof(argv[2]);
+
 	if(init_scheduler()){
 		printf("Error inicializacion scheduler\n");
 		return 1;
@@ -33,8 +39,8 @@ int main(int argc, char *argv[]){
 		return 2;
 	}
 
-	double t_arribo  = iacum_exp(lcgrand(SEED0), LAMBDA);
-	double t_consumo = iacum_exp(lcgrand(SEED1), MU) + t_arribo;
+	double t_arribo  = iacum_exp(lcgrand(SEED0), lambda);
+	double t_consumo = iacum_exp(lcgrand(SEED1), mu) + t_arribo;
 	scheduler_agregar_evento(ARRIBO, t_arribo);
 	scheduler_agregar_evento(CONSUMO, t_consumo);
 
@@ -47,14 +53,14 @@ int main(int argc, char *argv[]){
 		case ARRIBO:{
 			fila_recibir_paquete(&fila);
 			
-			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(SEED0), LAMBDA));
+			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(SEED0), lambda));
 			scheduler_agregar_evento(M_NPAQUETES, 0);
 			break;
 		}
 		case CONSUMO:{
 			fila_consumir_paquete(&fila);
 			
-			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(SEED1), MU));
+			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(SEED1), mu));
 			scheduler_agregar_evento(M_NPAQUETES, 0);
 			//scheduler_agregar_evento(M_TESPERA, 0);
 			break;
