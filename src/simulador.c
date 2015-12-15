@@ -38,35 +38,40 @@ int main(int argc, char *argv[]){
 		printf("Error inicializacion fila\n");
 		return 2;
 	}
-
-	double t_arribo  = iacum_exp(lcgrand(SEED0), lambda);
-	double t_consumo = iacum_exp(lcgrand(SEED1), mu) + t_arribo;
-	scheduler_agregar_evento(ARRIBO, t_arribo);
-	scheduler_agregar_evento(CONSUMO, t_consumo);
+	
+	// Inicio de simulacion
+	double t_sim = 0.0;
+	scheduler_agregar_evento(ARRIBO,  t_sim + iacum_exp(lcgrand(SEED0), lambda));
+	scheduler_agregar_evento(CONSUMO, t_sim + iacum_exp(lcgrand(SEED1), mu));
 
 	FILE *fpf = fopen("npaq_en_fila", "w");
-
+	FILE *fpt = fopen("tespera_en_fila", "w");
 	for(unsigned long i=0; hay_evento() && i < N_EVENTOS; i++){
-		consumir_evento();
+		consumir_evento(&t_sim);
 
 		switch(ultimo_evento()){
 		case ARRIBO:{
-			fila_recibir_paquete(&fila);
+			double t_paquete =  t_sim + iacum_exp(lcgrand(SEED0), lambda);
 			
-			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(SEED0), lambda));
-			scheduler_agregar_evento(M_NPAQUETES, 0);
+			fila_recibir_paquete(&fila, t_paquete);
+
+			fila_logear_npaquetes(fpf, &fila);
+
+			scheduler_agregar_evento(ARRIBO, t_paquete);
 			break;
 		}
 		case CONSUMO:{
+			fila_logear_tiempo_paquete_consumido(stdout, t_sim - fila_tiempo_paquete_a_consumir(&fila));
+
 			fila_consumir_paquete(&fila);
 			
-			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(SEED1), mu));
-			scheduler_agregar_evento(M_NPAQUETES, 0);
-			//scheduler_agregar_evento(M_TESPERA, 0);
+			fila_logear_npaquetes(fpf, &fila);
+
+			scheduler_agregar_evento(CONSUMO, t_sim + iacum_exp(lcgrand(SEED1), mu));
 			break;
 		}
 		case M_NPAQUETES:{
-			fila_logear_npaquetes(fpf, &fila);
+			//fila_logear_npaquetes(fpf, &fila);
 			break;
 		}
 		case M_TESPERA:{
@@ -78,12 +83,12 @@ int main(int argc, char *argv[]){
 
 		//usleep(0);
 	}
+	fclose(fpf);
+	fclose(fpt);
 
 	FILE *fpe = fopen("resultados_finales", "w");
 	fila_logear_paquetes_peridos(fpe, &fila);
 	fila_logear_paquetes_consumidos(fpe, &fila);
-
-	fclose(fpf);
 	fclose(fpe);
 
 	return 0;

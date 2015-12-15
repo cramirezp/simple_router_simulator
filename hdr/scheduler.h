@@ -26,7 +26,7 @@ void scheduler_agregar_evento(enum EVENTO e, double t){
 	lista_insertar(&scheduler.lista, e, t);
 }
 
-int consumir_evento(){
+int consumir_evento(double *t_simulacion){
 	if(scheduler.lista.primero == NULL)
 		return -1;	// error : no se ha inicializado lista
 
@@ -36,6 +36,7 @@ int consumir_evento(){
 	scheduler.evento_actual        = scheduler.lista.primero->sig->evento;
 	scheduler.tiempo_espera_actual = scheduler.lista.primero->sig->tiempo;
 	scheduler.tiempo_simulacion   += scheduler.tiempo_espera_actual;
+	*t_simulacion = scheduler.tiempo_simulacion;
 
 	struct nodo_evento *actual_cabeza = scheduler.lista.primero->sig;
 	scheduler.lista.primero->sig      = actual_cabeza->sig;
