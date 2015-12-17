@@ -22,11 +22,13 @@
 #define ISEED1	53
 
 int main(int argc, char *argv[]){
-	float lambda=LAMBDA, mu=MU;
+	double t_sim=T_SIM,lambda=LAMBDA, mu=MU;
 	if(argc > 1)
 		lambda = atof(argv[1]);
 	if(argc > 2)
-		mu     = atof(argv[2]);
+		lambda = atof(argv[2]);
+	if(argc > 3)
+		mu     = atof(argv[3]);
 
 	if(scheduler_inicializar()){
 		printf("Error inicializacion scheduler\n");
@@ -45,7 +47,7 @@ int main(int argc, char *argv[]){
 
 	FILE *fpf = fopen("npaq_en_fila", "w");
 	FILE *fpt = fopen("tespera_en_fila", "w");
-	while(tiempo_simulacion() < T_SIM){
+	while(tiempo_simulacion() < t_sim){
 		if(!hay_evento())
 			return 1;	// error
 
@@ -60,6 +62,7 @@ int main(int argc, char *argv[]){
 			break;
 		}
 		case CONSUMO:{
+			fila_logear_tiempo_paquete_consumido(fpt, &fila, tiempo_simulacion());
 			fila_consumir_paquete(&fila);
 			fila_logear_npaquetes(fpf, &fila);
 
@@ -74,6 +77,8 @@ int main(int argc, char *argv[]){
 	fclose(fpt);
 
 	FILE *fpe = fopen("resultados_finales", "w");
+	fila_logear_paquetes_peridos(fpe, &fila);
+	fila_logear_paquetes_consumidos(fpe, &fila);
 	fclose(fpe);
 
 	return 0;

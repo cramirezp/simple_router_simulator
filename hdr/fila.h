@@ -8,8 +8,9 @@ struct fila_t{
 	// Estado
 	int tamano;
 	int paquetes_en_fila;
-	double tiempos_espera[K];
+	double tiempos_entrada[K];
 	enum ESTADO_FILA estado;
+	double tiempo_ultimo_paquete;
 	// Datos generales
 	long paquetes_perdidos;
 	long paquetes_recibidos;
@@ -24,4 +25,4 @@ double fila_tiempo_paquete_a_consumir(struct fila_t *f);
 void fila_logear_npaquetes(FILE *fp, struct fila_t *f);
 void fila_logear_paquetes_peridos(FILE *fp, struct fila_t *f);
 void fila_logear_paquetes_consumidos(FILE *fp, struct fila_t *f);
-void fila_logear_tiempo_paquete_consumido(FILE *fp, double t);
+void fila_logear_tiempo_paquete_consumido(FILE *fp, struct fila_t *f, double tiempo_actual);
