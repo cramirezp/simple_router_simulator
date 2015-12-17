@@ -1,8 +1,8 @@
 /*************************************************************************
-* Simulador servicio de router con una fila de espera.
+* Simulador router con una fila de espera.
 * Arribo y consumo son V.A. exponenciales de parametros lambda y mu.
 *
-*/
+***/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +13,7 @@
 #include "exponencial.h"
 #include "fila.h"
 
-#define N_EVENTOS 10000000L			// -1 maxima espera.  Tanto eventos de FILA como de MEDICION
+#define T_SIM 10000000.0			// -1 maxima espera.  Tanto eventos de FILA como de MEDICION
 
 #define LAMBDA 	0.99
 #define MU 		1
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
 	if(argc > 2)
 		mu     = atof(argv[2]);
 
-	if(init_scheduler()){
+	if(scheduler_inicializar()){
 		printf("Error inicializacion scheduler\n");
 		return 1;
 	}
@@ -39,56 +39,38 @@ int main(int argc, char *argv[]){
 		return 2;
 	}
 	
-	// Inicio de simulacion
-	double t_sim = 0.0;
-	scheduler_agregar_evento(ARRIBO,  t_sim + iacum_exp(lcgrand(SEED0), lambda));
-	scheduler_agregar_evento(CONSUMO, t_sim + iacum_exp(lcgrand(SEED1), mu));
+	// Arranque de simulacion
+	scheduler_agregar_evento(ARRIBO , iacum_exp(lcgrand(SEED0), lambda));
+	scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(SEED1), mu));
+
+	scheduler_imprimir();
 
 	FILE *fpf = fopen("npaq_en_fila", "w");
 	FILE *fpt = fopen("tespera_en_fila", "w");
-	for(unsigned long i=0; hay_evento() && i < N_EVENTOS; i++){
-		consumir_evento(&t_sim);
+	while(hay_evento() && tiempo_simulacion() < T_SIM){
+		scheduler_consumir_evento();
 
-		switch(ultimo_evento()){
+		switch(evento_actual()){
 		case ARRIBO:{
-			double t_paquete =  t_sim + iacum_exp(lcgrand(SEED0), lambda);
-			
-			fila_recibir_paquete(&fila, t_paquete);
-
-			fila_logear_npaquetes(fpf, &fila);
-
-			scheduler_agregar_evento(ARRIBO, t_paquete);
+			printf("Arribo  : %.2f\n", tiempo_simulacion());
+			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(SEED0), lambda));
 			break;
 		}
 		case CONSUMO:{
-			fila_logear_tiempo_paquete_consumido(stdout, t_sim - fila_tiempo_paquete_a_consumir(&fila));
-
-			fila_consumir_paquete(&fila);
-			
-			fila_logear_npaquetes(fpf, &fila);
-
-			scheduler_agregar_evento(CONSUMO, t_sim + iacum_exp(lcgrand(SEED1), mu));
-			break;
-		}
-		case M_NPAQUETES:{
-			//fila_logear_npaquetes(fpf, &fila);
-			break;
-		}
-		case M_TESPERA:{
+			printf("Consumo : %.2f\n", tiempo_simulacion());
+			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(SEED1), mu));
 			break;
 		}
 		default:
 			break;
 		}
-
-		//usleep(0);
+		scheduler_imprimir();
+		usleep(5000);
 	}
 	fclose(fpf);
 	fclose(fpt);
 
 	FILE *fpe = fopen("resultados_finales", "w");
-	fila_logear_paquetes_peridos(fpe, &fila);
-	fila_logear_paquetes_consumidos(fpe, &fila);
 	fclose(fpe);
 
 	return 0;

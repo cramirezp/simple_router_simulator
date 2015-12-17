@@ -1,94 +1,96 @@
 #include <stdlib.h>
 
-enum EVENTO {ARRIBO, CONSUMO, M_NPAQUETES, M_TESPERA, NINGUNO};
+struct nodo_t{
+	double peso;
+	struct nodo_t *sig;
 
-struct nodo_evento{
-	enum EVENTO evento;
-	double tiempo;
-
-	struct nodo_evento *sig;
+	void *valor;
 };
 
-struct lista_evento{
-	int tamano;
-	struct nodo_evento *primero;
-	struct nodo_evento *actual;
+struct lista_t{
+	unsigned int tamano;
+
+	struct nodo_t *puntero;
+	struct nodo_t *ultimo;
 };
 
-int lista_init(struct lista_evento *lista){
-	if(lista == NULL)
+int lista_iniciar(struct lista_t *l){
+	if(l == NULL)
 		return 1;
 
-	lista->tamano = 0;
-	lista->primero = (struct nodo_evento*) malloc(sizeof(struct nodo_evento));
-	lista->primero->sig = NULL;
-	lista->actual = lista->primero;
+	l->tamano = 0;
+	l->puntero = (struct nodo_t*) malloc(sizeof(struct nodo_t));
+	l->puntero->peso  = 0.0;
+	l->puntero->sig   = NULL;
+	l->puntero->valor = NULL;
+	l->ultimo = l->puntero->sig;
 
 	return 0;
 }
 
-int lista_vacia(struct lista_evento *lista){
-	return lista->tamano;
+int lista_iniciada(struct lista_t *l){
+	return l!=NULL && l->puntero!=NULL;
 }
 
-int lista_siguiente(struct lista_evento *lista){
-	if(lista == NULL)
-		return 0;
-
-	if(lista->actual == NULL)
-		return 0;
-
-	lista->actual = lista->actual->sig;
-
-	if(lista->actual == NULL)
-		return 0;
-
-	return 1;
+int lista_vaciada(struct lista_t *l){
+	return !l->tamano;
 }
 
-void lista_reiniciar(struct lista_evento *lista){
-	if(lista != NULL)
-		lista->actual = lista->primero;
-}
+#define lista_loop(L, i) 					\
+	struct nodo_t *i;						\
+	for(i=(L)->puntero;i!=NULL;i=i->sig)	\
 
-void lista_insertar(struct lista_evento *lista, enum EVENTO e, double t){
-	// 
+int lista_insertar(struct lista_t *l, void *valor, double peso){
+	// Insersión es ordenada
+	if(l == NULL)
+		return 1;
+	else if(l->puntero == NULL)
+		return 2;
 
-	if(lista == NULL)
-		return;
+	// Creacion de nodo
+	struct nodo_t *n = (struct nodo_t*) malloc(sizeof(struct nodo_t));
+	n->peso  = peso;
+	n->valor = valor;
+	n->sig   = NULL;
 
-	struct nodo_evento *nodo = (struct nodo_evento*) malloc(sizeof(struct nodo_evento));
-	nodo->evento = e;
-	nodo->tiempo = t;
-	nodo->sig = NULL;
-
-	if(lista->primero->sig == NULL){
-		lista->primero->sig = nodo;
-		lista->actual  = lista->primero;
+	if(l->puntero->sig == NULL){
+		l->puntero->sig = n;
+	}else if(n->peso >= l->ultimo->peso){
+		l->ultimo->sig = n;
+		l->ultimo = n;
 	}else{
-		// No deberia haber problemas con lista->actual==NULL
-		lista_reiniciar(lista);
-		do{
-			if(lista->actual->sig != NULL){
-				if (lista->actual->sig->tiempo > t){
-					nodo->sig = lista->actual->sig;
-					lista->actual->sig = nodo;
-					break;
-				}
-			}else{
-				lista->actual->sig = nodo;
-				nodo->sig = NULL;
-				break;
-			}
-		}while(lista_siguiente(lista));
+		struct nodo_t *i;
+		for(i=l->puntero; i!=NULL; i=i->sig){
+			if(n->peso > i->sig->peso)
+				i->sig = n;
+		}
 	}
 
-	lista->tamano += 1;
+	l->tamano += 1;
+
+	return 0;
 }
 
-void lista_imprimir(struct lista_evento *lista){
-	lista_reiniciar(lista);
-	while(lista_siguiente(lista)){
-		printf("Evento %d -> t = %.1f \n", lista->actual->evento, lista->actual->tiempo);
+void *lista_sacar(struct lista_t *l){
+	if(l == NULL)
+		return NULL;	// quizas algun errno
+	else if(l->puntero == NULL)
+		return NULL;	// quizas algun errno
+
+	if(l->puntero->sig == NULL)
+		return NULL;
+
+	struct nodo_t *n = l->puntero->sig;
+	void *v = n->valor;
+
+	l->puntero->sig = l->puntero->sig->sig;
+	free(n);
+
+	return v;
+}
+
+void lista_imprimir(struct lista_t *l){
+	lista_loop(l, i){
+		printf("Peso %.2f\n", i->peso);
 	}
 }
