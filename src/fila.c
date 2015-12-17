@@ -30,7 +30,7 @@ int fila_recibir_paquete(struct fila_t *f, double t_0){
 
 	f->paquetes_en_fila++;
 	f->paquetes_recibidos++;
-	f->tiempos_espera[f->paquetes_en_fila-1] = t_0;
+	//f->tiempos_espera[f->paquetes_en_fila-1] = t_0;
 	
 	if(f->paquetes_en_fila == f->tamano)
 		f->estado = LLENA;
@@ -48,12 +48,12 @@ int fila_consumir_paquete(struct fila_t *f){
 		return -1;
 
 	if(f->estado == VACIA){
-		return VACIA;
+		return f->estado;
 	}
 
-	int i;
-	for(i=1; i<=f->paquetes_en_fila; i++)
-		f->tiempos_espera[i-1] = f->tiempos_espera[i];
+	//int i;
+	//for(i=1; i<=f->paquetes_en_fila; i++)
+	//	f->tiempos_espera[i-1] = f->tiempos_espera[i];
 
 	f->paquetes_en_fila--;
 	f->paquetes_consumidos++;
@@ -77,7 +77,7 @@ double fila_tiempo_paquete_a_consumir(struct fila_t *f){
 
 void fila_logear_npaquetes(FILE *fp, struct fila_t *f){
 	if(fp == NULL)
-		fprintf(stdout, "%d\n", f->paquetes_en_fila);
+		fprintf(stdout, "Paquetes en fila: %d\n", f->paquetes_en_fila);
 	else
 		fprintf(fp, "%d\n", f->paquetes_en_fila);
 }

@@ -37,7 +37,7 @@ int scheduler_agregar_evento(enum EVENTO e, double delta_t){
 	nuevo_evento->tiempo = scheduler.tiempo_simulacion + delta_t;
 
 	// Agregar evento a lista
-	lista_insertar(&scheduler.lista_eventos, (void*) nuevo_evento, delta_t);
+	lista_insertar(&scheduler.lista_eventos, (void*) nuevo_evento, nuevo_evento->tiempo);
 
 	return 0;
 }
@@ -53,8 +53,8 @@ int scheduler_consumir_evento(){
 
 	struct evento_t *e = (struct evento_t*) lista_sacar(&scheduler.lista_eventos); 
 
-	scheduler.evento_actual      = e->tipo;
-	scheduler.tiempo_simulacion += e->tiempo;
+	scheduler.evento_actual     = e->tipo;
+	scheduler.tiempo_simulacion = e->tiempo;
 
 	free(e);
 

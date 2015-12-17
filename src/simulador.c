@@ -13,13 +13,13 @@
 #include "exponencial.h"
 #include "fila.h"
 
-#define T_SIM 10000000.0			// -1 maxima espera.  Tanto eventos de FILA como de MEDICION
+#define T_SIM 1000000.0			// Tiempo de simulacion. Inversa de la magnitud de los parametros son la escala
 
 #define LAMBDA 	0.99
 #define MU 		1
 
-#define SEED0	1
-#define SEED1	53
+#define ISEED0	1
+#define ISEED1	53
 
 int main(int argc, char *argv[]){
 	float lambda=LAMBDA, mu=MU;
@@ -40,32 +40,35 @@ int main(int argc, char *argv[]){
 	}
 	
 	// Arranque de simulacion
-	scheduler_agregar_evento(ARRIBO , iacum_exp(lcgrand(SEED0), lambda));
-	scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(SEED1), mu));
-
-	scheduler_imprimir();
+	scheduler_agregar_evento(ARRIBO , iacum_exp(lcgrand(ISEED0), lambda));
+	scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(ISEED1), mu));
 
 	FILE *fpf = fopen("npaq_en_fila", "w");
 	FILE *fpt = fopen("tespera_en_fila", "w");
-	while(hay_evento() && tiempo_simulacion() < T_SIM){
+	while(tiempo_simulacion() < T_SIM){
+		if(!hay_evento())
+			return 1;	// error
+
 		scheduler_consumir_evento();
 
 		switch(evento_actual()){
 		case ARRIBO:{
-			printf("Arribo  : %.2f\n", tiempo_simulacion());
-			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(SEED0), lambda));
+			fila_recibir_paquete(&fila, tiempo_simulacion());
+			fila_logear_npaquetes(fpf, &fila);
+
+			scheduler_agregar_evento(ARRIBO, iacum_exp(lcgrand(ISEED0), lambda));
 			break;
 		}
 		case CONSUMO:{
-			printf("Consumo : %.2f\n", tiempo_simulacion());
-			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(SEED1), mu));
+			fila_consumir_paquete(&fila);
+			fila_logear_npaquetes(fpf, &fila);
+
+			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(ISEED1), mu));
 			break;
 		}
 		default:
 			break;
 		}
-		scheduler_imprimir();
-		usleep(5000);
 	}
 	fclose(fpf);
 	fclose(fpt);

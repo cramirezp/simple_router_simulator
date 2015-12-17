@@ -18,27 +18,26 @@ int lista_iniciar(struct lista_t *l){
 	if(l == NULL)
 		return 1;
 
-	l->tamano = 0;
 	l->puntero = (struct nodo_t*) malloc(sizeof(struct nodo_t));
 	l->puntero->peso  = 0.0;
 	l->puntero->sig   = NULL;
 	l->puntero->valor = NULL;
-	l->ultimo = l->puntero->sig;
+	l->ultimo         = l->puntero->sig;
+	l->tamano = 0;
 
 	return 0;
 }
 
 int lista_iniciada(struct lista_t *l){
-	return l!=NULL && l->puntero!=NULL;
+	return l==NULL || l->puntero==NULL;
 }
 
 int lista_vaciada(struct lista_t *l){
 	return !l->tamano;
 }
 
-#define lista_loop(L, i) 					\
-	struct nodo_t *i;						\
-	for(i=(L)->puntero;i!=NULL;i=i->sig)	\
+#define lista_loop(L, i) 						\
+	for(i=(L)->puntero->sig;i!=NULL;i=i->sig)
 
 int lista_insertar(struct lista_t *l, void *valor, double peso){
 	// Insersión es ordenada
@@ -55,14 +54,24 @@ int lista_insertar(struct lista_t *l, void *valor, double peso){
 
 	if(l->puntero->sig == NULL){
 		l->puntero->sig = n;
+		l->ultimo = n;
+
 	}else if(n->peso >= l->ultimo->peso){
 		l->ultimo->sig = n;
 		l->ultimo = n;
+
 	}else{
 		struct nodo_t *i;
-		for(i=l->puntero; i!=NULL; i=i->sig){
-			if(n->peso > i->sig->peso)
+		for(i=l->puntero;i!=NULL;i=i->sig){
+			if(i->sig == NULL){
 				i->sig = n;
+				break;
+			}
+			else if(n->peso < i->sig->peso){
+				n->sig = i->sig;
+				i->sig = n;
+				break;
+			}
 		}
 	}
 
@@ -71,7 +80,7 @@ int lista_insertar(struct lista_t *l, void *valor, double peso){
 	return 0;
 }
 
-void *lista_sacar(struct lista_t *l){
+void* lista_sacar(struct lista_t *l){
 	if(l == NULL)
 		return NULL;	// quizas algun errno
 	else if(l->puntero == NULL)
@@ -89,8 +98,17 @@ void *lista_sacar(struct lista_t *l){
 	return v;
 }
 
-void lista_imprimir(struct lista_t *l){
+int lista_imprimir(struct lista_t *l){
+	if(l == NULL)
+		return 1;	// quizas algun errno
+	else if(l->puntero == NULL)
+		return 2;	// quizas algun errno
+	
+	struct nodo_t *i;
 	lista_loop(l, i){
 		printf("Peso %.2f\n", i->peso);
 	}
+	printf("-----\n");
+
+	return 0;
 }

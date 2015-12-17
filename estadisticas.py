@@ -1,4 +1,5 @@
 #! /usr/bin/python
+import subprocess
 import math
 import matplotlib
 import matplotlib.pyplot as plt
@@ -6,6 +7,7 @@ import matplotlib.pyplot as plt
 K   = 11
 rho = 0.1		# 0.99999 para 1
 
+subprocess.call(["./bin/simulador", str(rho), str(1)])
 
 farribo = open("npaq_en_fila", "r")
 
