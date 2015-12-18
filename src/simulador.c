@@ -24,7 +24,7 @@
 int main(int argc, char *argv[]){
 	double t_sim=T_SIM,lambda=LAMBDA, mu=MU;
 	if(argc > 1)
-		lambda = atof(argv[1]);
+		t_sim = atof(argv[1]);
 	if(argc > 2)
 		lambda = atof(argv[2]);
 	if(argc > 3)
@@ -62,8 +62,8 @@ int main(int argc, char *argv[]){
 			break;
 		}
 		case CONSUMO:{
-			fila_logear_tiempo_paquete_consumido(fpt, &fila, tiempo_simulacion());
-			fila_consumir_paquete(&fila);
+			if(fila_consumir_paquete(&fila) != VACIA)
+				fila_logear_tiempo_paquete_consumido(fpt, &fila, tiempo_simulacion());
 			fila_logear_npaquetes(fpf, &fila);
 
 			scheduler_agregar_evento(CONSUMO, iacum_exp(lcgrand(ISEED1), mu));

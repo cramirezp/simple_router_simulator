@@ -54,7 +54,7 @@ int fila_consumir_paquete(struct fila_t *f){
 	int i;
 	for(i=1; i<f->paquetes_en_fila; i++)
 		f->tiempos_entrada[i-1] = f->tiempos_entrada[i];
-	f->tiempos_entrada[i-1] = 0;
+	f->tiempos_entrada[i-1] = 0.0;
 
 	f->paquetes_en_fila--;
 	f->paquetes_consumidos++;
@@ -64,7 +64,7 @@ int fila_consumir_paquete(struct fila_t *f){
 
 	if(f->paquetes_en_fila == 0)
 		f->estado = VACIA;
-	else if(f->paquetes_en_fila < 0){
+	else if(f->paquetes_en_fila < 1){
 		f->paquetes_en_fila = 0;
 		f->estado = VACIA;
 	}
@@ -82,16 +82,14 @@ void fila_logear_tiempo_paquete_consumido(FILE *fp, struct fila_t *f, double tie
 	if(fp == NULL)
 		fp = stdout;
 
-	fprintf(fp, "%f\n", tiempo_actual- f->tiempos_entrada[0]);
+	fprintf(fp, "%f\n", tiempo_actual - f->tiempos_entrada[0]);
 }
-
 void fila_logear_paquetes_peridos(FILE *fp, struct fila_t *f){
 	if(fp == NULL)
 		fp = stdout;
 
 	fprintf(fp, "%ld\n", f->paquetes_perdidos);
 }
-
 void fila_logear_paquetes_consumidos(FILE *fp, struct fila_t *f){
 	if(fp == NULL)
 		fp = stdout;
